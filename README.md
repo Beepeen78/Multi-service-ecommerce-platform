@@ -4,24 +4,54 @@ A production-ready, cloud-native e-commerce platform built with microservices ar
 
 ## Architecture Overview
 
-### Microservices (9 Services)
-- **auth-service** (Node.js) - Authentication and authorization
-- **user-service** (Go) - User management
-- **product-service** (Node.js) - Product catalog
-- **inventory-service** (Python) - Inventory management
-- **cart-service** (Node.js) - Shopping cart
-- **order-service** (Go) - Order processing
-- **payment-service** (Node.js) - Payment processing
-- **notification-service** (Python) - Notifications (email, SMS)
-- **recommendation-service** (Python) - Product recommendations
+> 📊 **Detailed Architecture**: See [Architecture Overview](docs/ARCHITECTURE_OVERVIEW.md) for diagrams and detailed request flow.
+
+### Request Flow: User → Gateway → Service → Database → Events
+
+**Example: Order Processing Flow**
+```
+1. User Request 
+   ↓
+2. Ingress-NGINX (TLS termination, routing)
+   ↓
+3. Istio Service Mesh (traffic management, canary routing)
+   ↓
+4. Order Service (business logic)
+   ├─→ PostgreSQL (persist order data)
+   ├─→ Redis (cache order status)
+   └─→ Kafka (publish order.created event)
+       ↓
+5. Notification Service (Kafka consumer)
+   ├─→ PostgreSQL (store notification)
+   └─→ Redis (cache notification)
+       ↓
+6. User receives notification
+```
+
+**Complete Request Journey**: User → Gateway → Service → Database → Events → Notification Service → User
+
+### Microservices (9 Services) - Tech Stack & Purpose
+
+| Service | Language | Framework | Database | Cache | Purpose |
+|---------|----------|-----------|----------|-------|---------|
+| **auth-service** | Node.js | Express.js | PostgreSQL | Redis | Authentication, JWT token management, user registration/login |
+| **user-service** | Go | Standard library | PostgreSQL | Redis | User profile management, user data retrieval |
+| **product-service** | Node.js | Express.js | PostgreSQL | Redis | Product catalog, search, filtering, category browsing |
+| **inventory-service** | Python | Flask | PostgreSQL | Redis | Inventory management, stock reservation/release |
+| **cart-service** | Node.js | Express.js | - | Redis | Shopping cart management, session-based storage |
+| **order-service** | Go | Standard library | PostgreSQL | Redis | Order creation, Kafka event publishing, KEDA autoscaling |
+| **payment-service** | Node.js | Express.js | PostgreSQL | Redis | Payment processing, transaction management |
+| **notification-service** | Python | Flask | PostgreSQL | Redis | Email/SMS notifications, Kafka consumer |
+| **recommendation-service** | Python | Flask | PostgreSQL | Redis | Product recommendations, ML-based suggestions |
 
 ### Technology Stack
-- **Languages**: Node.js, Go, Python
-- **Communication**: gRPC (internal), REST (external)
-- **Databases**: PostgreSQL (primary), Redis (caching)
-- **Message Queue**: Kafka
-- **Service Mesh**: Istio (for canary deployments)
-- **Container Orchestration**: Kubernetes
+
+- **Languages**: Node.js (Express), Go (standard library), Python (Flask)
+- **Communication**: REST (external APIs), Kafka (event-driven async)
+- **Databases**: PostgreSQL (primary, ACID transactions), Redis (caching, sessions)
+- **Message Queue**: Kafka (event streaming, async communication)
+- **Service Mesh**: Istio (traffic management, canary deployments, mTLS)
+- **Container Orchestration**: Kubernetes (Helm, HPA, KEDA)
 
 ### Kubernetes Features
 - ✅ Helm charts for entire application
@@ -195,9 +225,11 @@ Canary deployments are configured using Istio VirtualServices and DestinationRul
 
 ## Documentation
 
+- [Architecture Overview](docs/ARCHITECTURE_OVERVIEW.md) - **Architecture diagrams and request flow**
 - [Deployment Guide](DEPLOYMENT.md) - Detailed deployment instructions
 - [Architecture Documentation](ARCHITECTURE.md) - System architecture and design
 - [Contributing Guide](CONTRIBUTING.md) - Development guidelines
+- [Testing Guide](TESTING.md) - Comprehensive testing documentation
 
 ## Project Structure
 
@@ -248,6 +280,48 @@ Canary deployments are configured using Istio VirtualServices and DestinationRul
 - Multi-region deployment
 - Service mesh observability
 - Advanced security policies
+
+## What I Learned / Key Responsibilities
+
+### Microservices Architecture & Design
+- Designed and implemented 9 microservices using Node.js, Go, and Python
+- Implemented service-to-service communication patterns (REST, event-driven)
+- Designed database schema and data flow across distributed services
+- Implemented caching strategies (Redis) and session management
+- Built event-driven architecture with Kafka for async processing
+
+### Container Orchestration & Kubernetes
+- Created comprehensive Helm charts for entire application stack
+- Configured Horizontal Pod Autoscaler (HPA) for CPU/memory-based scaling
+- Implemented KEDA for event-driven autoscaling based on Kafka lag
+- Set up Ingress-NGINX with TLS termination using Let's Encrypt
+- Configured Istio service mesh for traffic management and canary deployments
+
+### Observability & Monitoring
+- Integrated Prometheus for metrics collection across all services
+- Set up Grafana dashboards for visualization and alerting
+- Implemented centralized logging with Loki and Promtail
+- Added health check endpoints and service monitoring
+- Configured ServiceMonitor for automatic metrics discovery
+
+### CI/CD & GitOps
+- Built GitHub Actions pipeline for automated builds and tests
+- Implemented ArgoCD for GitOps-based deployments
+- Created multi-stage Docker builds for optimized images
+- Set up automated testing (unit, integration, E2E)
+
+### Infrastructure as Code
+- Wrote Kubernetes manifests and Helm templates
+- Configured cert-manager for automated TLS certificate management
+- Set up infrastructure components (PostgreSQL, Redis, Kafka) via Helm
+- Created comprehensive documentation and deployment guides
+
+### Best Practices
+- Implemented health checks, readiness probes, and liveness probes
+- Added resource limits and requests for all services
+- Designed for high availability with multi-replica deployments
+- Created comprehensive testing suite (unit, integration, load, E2E)
+- Documented architecture, deployment, and contribution guidelines
 
 ## License
 
