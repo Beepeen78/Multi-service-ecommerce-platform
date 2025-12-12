@@ -1,0 +1,14 @@
+{{- if .Values.services.auth.enabled }}
+{{- $service := .Values.services.auth }}
+{{- $name := "auth-service" }}
+{{- $port := 3001 }}
+---
+{{ include "ecommerce-platform.service" (dict "name" $name "port" $port "Release" $.Release "Values" $.Values) }}
+---
+{{ include "ecommerce-platform.deployment" (dict "name" $name "port" $port "replicas" $service.replicaCount "image" $service.image "resources" $service.resources "Release" $.Release "Values" $.Values) }}
+---
+{{- if $service.autoscaling.enabled }}
+{{ include "ecommerce-platform.hpa" (dict "name" $name "autoscaling" $service.autoscaling "Release" $.Release "Values" $.Values) }}
+{{- end }}
+{{- end }}
+

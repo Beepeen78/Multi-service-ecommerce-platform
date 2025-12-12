@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-service-canary
+  namespace: ecommerce
+  labels:
+    app: product-service
+    version: canary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product-service
+      version: canary
+  template:
+    metadata:
+      labels:
+        app: product-service
+        version: canary
+    spec:
+      containers:
+      - name: product-service
+        image: localhost:5000/product-service:canary
+        ports:
+        - containerPort: 3003
+        env:
+        - name: PORT
+          value: "3003"
+        - name: DB_HOST
+          value: "postgres"
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_NAME
+          value: "ecommerce"
+        - name: DB_USER
+          value: "ecommerce"
+        - name: DB_PASSWORD
+          value: "ecommerce123"
+        - name: REDIS_URL
+          value: "redis://redis:6379"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-service-canary
+  namespace: ecommerce
+  labels:
+    app: product-service
+    version: canary
+spec:
+  ports:
+  - port: 3003
+    name: http
+  selector:
+    app: product-service
+    version: canary
+

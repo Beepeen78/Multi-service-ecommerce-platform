@@ -1,0 +1,22 @@
+{{- if .Values.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "ecommerce-platform.fullname" . }}
+  labels:
+    {{- include "ecommerce-platform.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "ecommerce-platform.name" . }}
+  endpoints:
+  {{- range $name, $service := .Values.services }}
+  {{- if $service.enabled }}
+  - port: http
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+  {{- end }}
+  {{- end }}
+{{- end }}
+
