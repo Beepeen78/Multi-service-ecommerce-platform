@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ecommerce-config
+  namespace: ecommerce-platform
+data:
+  NODE_ENV: "production"
+  USER_SERVICE_URL: "http://user-service:3001"
+  PRODUCT_SERVICE_URL: "http://product-service:3002"
+  ORDER_SERVICE_URL: "http://order-service:3003"
+  PAYMENT_SERVICE_URL: "http://payment-service:3004"
+  INVENTORY_SERVICE_URL: "http://inventory-service:3005"
+  NOTIFICATION_SERVICE_URL: "http://notification-service:3006"
+  REDIS_URL: "redis://redis-service:6379"
+  DATABASE_URL: "postgresql://user:password@postgres-service:5432/ecommerce"
+  LOG_LEVEL: "info"
+

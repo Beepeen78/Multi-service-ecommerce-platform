@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: SERVICE_NAME
+  namespace: ecommerce-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: SERVICE_NAME
+  template:
+    metadata:
+      labels:
+        app: SERVICE_NAME
+    spec:
+      containers:
+      - name: SERVICE_NAME
+        image: your-registry/SERVICE_NAME:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: SERVICE_PORT
+        envFrom:
+        - configMapRef:
+            name: ecommerce-config
+        - secretRef:
+            name: ecommerce-secrets
+        env:
+        - name: PORT
+          value: "SERVICE_PORT"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: SERVICE_PORT
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: SERVICE_PORT
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: SERVICE_NAME-service
+  namespace: ecommerce-platform
+spec:
+  selector:
+    app: SERVICE_NAME
+  ports:
+  - protocol: TCP
+    port: SERVICE_PORT
+    targetPort: SERVICE_PORT
+  type: ClusterIP
+
