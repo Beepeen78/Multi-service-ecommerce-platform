@@ -1,0 +1,35 @@
+{{- if .Values.services.order.enabled }}
+{{- $service := .Values.services.order }}
+{{- $name := "order-service" }}
+{{- $port := 3006 }}
+---
+{{ include "ecommerce-platform.service" (dict "name" $name "port" $port "Release" $.Release "Values" $.Values) }}
+---
+{{ include "ecommerce-platform.deployment" (dict "name" $name "port" $port "replicas" $service.replicaCount "image" $service.image "resources" $service.resources "Release" $.Release "Values" $.Values) }}
+---
+{{- if $service.autoscaling.enabled }}
+{{ include "ecommerce-platform.hpa" (dict "name" $name "autoscaling" $service.autoscaling "Release" $.Release "Values" $.Values) }}
+{{- end }}
+---
+{{- if $service.keda.enabled }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ $name }}-keda
+  labels:
+    {{- include "ecommerce-platform.labels" $ | nindent 4 }}
+spec:
+  scaleTargetRef:
+    name: {{ $name }}
+  minReplicaCount: {{ $service.autoscaling.minReplicas }}
+  maxReplicaCount: {{ $service.autoscaling.maxReplicas }}
+  triggers:
+  - type: kafka
+    metadata:
+      bootstrapServers: {{ $service.keda.kafka.broker }}
+      consumerGroup: order-service-consumer
+      topic: {{ $service.keda.kafka.topic }}
+      lagThreshold: "{{ $service.keda.kafka.lagThreshold }}"
+{{- end }}
+{{- end }}
+

@@ -1,0 +1,236 @@
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+
+# PostgreSQL Configuration
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "ecommerce123"
+    database: "ecommerce"
+  persistence:
+    enabled: true
+    size: 20Gi
+
+# Redis Configuration
+redis:
+  enabled: true
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      size: 10Gi
+
+# Kafka Configuration
+kafka:
+  enabled: true
+  persistence:
+    enabled: true
+    size: 20Gi
+  zookeeper:
+    persistence:
+      enabled: true
+      size: 10Gi
+
+# Services Configuration
+services:
+  auth:
+    enabled: true
+    image:
+      repository: localhost:5000/auth-service
+      tag: latest
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+      targetMemoryUtilizationPercentage: 80
+
+  user:
+    enabled: true
+    image:
+      repository: localhost:5000/user-service
+      tag: latest
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+
+  product:
+    enabled: true
+    image:
+      repository: localhost:5000/product-service
+      tag: latest
+    replicaCount: 3
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 3
+      maxReplicas: 15
+      targetCPUUtilizationPercentage: 70
+
+  inventory:
+    enabled: true
+    image:
+      repository: localhost:5000/inventory-service
+      tag: latest
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+
+  cart:
+    enabled: true
+    image:
+      repository: localhost:5000/cart-service
+      tag: latest
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+
+  order:
+    enabled: true
+    image:
+      repository: localhost:5000/order-service
+      tag: latest
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+    keda:
+      enabled: true
+      kafka:
+        broker: "kafka:9092"
+        topic: "orders"
+        lagThreshold: 10
+
+  payment:
+    enabled: true
+    image:
+      repository: localhost:5000/payment-service
+      tag: latest
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+
+  notification:
+    enabled: true
+    image:
+      repository: localhost:5000/notification-service
+      tag: latest
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+
+  recommendation:
+    enabled: true
+    image:
+      repository: localhost:5000/recommendation-service
+      tag: latest
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+
+# Ingress Configuration
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: api.ecommerce.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: ecommerce-tls
+      hosts:
+        - api.ecommerce.local
+
+# Service Monitor for Prometheus
+serviceMonitor:
+  enabled: true
+
