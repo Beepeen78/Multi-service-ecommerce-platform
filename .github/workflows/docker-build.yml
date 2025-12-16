@@ -100,4 +100,3 @@ jobs:
     - name: Build all services
       run: |
         docker-compose build
-
