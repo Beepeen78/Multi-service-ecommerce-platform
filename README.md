@@ -395,49 +395,6 @@ The project includes GitHub Actions workflows that:
 
 ---
 
-## ⚠️ Weaknesses & Future Improvements
-
-### Current Limitations
-
-1. **No Message Queue**
-   - **Current**: Services communicate synchronously via HTTP
-   - **Impact**: Tight coupling, potential cascading failures
-   - **Improvement**: Implement RabbitMQ or Kafka for async communication
-
-2. **Limited Monitoring & Observability**
-   - **Current**: Basic health checks only
-   - **Impact**: Difficult to debug production issues
-   - **Improvement**: Add Prometheus, Grafana, distributed tracing (Jaeger)
-
-3. **No Circuit Breaker Pattern**
-   - **Current**: Services can fail and cause cascading failures
-   - **Impact**: Poor resilience
-   - **Improvement**: Implement circuit breakers (resilience4j, Hystrix)
-
-4. **Authentication in Each Service**
-   - **Current**: Each service validates JWT independently
-   - **Impact**: Code duplication
-   - **Improvement**: Centralize auth in API Gateway or use service mesh
-
-5. **No Rate Limiting**
-   - **Current**: No protection against DDoS or abuse
-   - **Impact**: Vulnerable to abuse
-   - **Improvement**: Add rate limiting at API Gateway
-
-6. **Basic Error Handling**
-   - **Current**: Simple error responses
-   - **Impact**: Poor debugging experience
-   - **Improvement**: Structured error responses, correlation IDs
-
-7. **No Load Testing**
-   - **Current**: No performance benchmarks
-   - **Impact**: Unknown scalability limits
-   - **Improvement**: Add load testing (Locust, k6)
-
-8. **Limited Test Coverage**
-   - **Current**: Minimal automated tests
-   - **Impact**: Risk of regressions
-   - **Improvement**: Unit tests, integration tests, E2E tests
 
 ### Future Enhancements
 
